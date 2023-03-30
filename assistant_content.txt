@@ -1,0 +1,11 @@
+%%% Characters %%%
+[Ava]: female
+[Max]: male
+%%% Output %%%
+[Narrator]: Ava and Max had been best friends since childhood. They did everything together, until Ava fell in love with Max. 
+[Ava]: Max, I have something to tell you. I'm in love with you. 
+[Narrator]: Max's eyes widened in surprise. He took a moment to process her confession before responding. 
+[Max]: Ava, I had no idea. But, I'm sorry, I don't feel the same way. 
+[Narrator]: Ava felt a lump form in her throat. 
+[Ava]: I understand, Max. I just needed to tell you how I feel. 
+[Narrator]: Ava was devastated and distanced herself from Max. Months passed and Ava began to realize that their friendship was too important to throw away. One day, she called Max and they met at their old hangout spot. As they caught up, Ava felt a familiar warmth in her heart. Maybe they weren't meant to be lovers, but their friendship was still worth everything.
