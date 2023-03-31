@@ -44,7 +44,7 @@ def assign_voices(voices, characters):
 
 def introduce_characters(voice_map):
     for name, voice_id in voice_map.items():
-        play_from_binary(text_to_speech(voice_id, f'Hi! My name is {name}'))
+        play_from_binary(text_to_speech(voice_id, f'Greetings listener! My name is {name}.'))
 
 def read_transcription(voice_map, transcription):
     #pattern = r'\[([\w\s]+)\]:\s*([\w\s,.!?\']+)'
@@ -65,12 +65,14 @@ def transcribe(PATH):
         file.write(transcription)
 
 if __name__ == '__main__':
-    transcribe('input.txt')
+    #transcribe('input.txt')
     characters, transcription = parse('transcription')
 
     # Assign the voices based on attributes (only sex for now)
     voices = get_voices()
     voice_map = assign_voices(voices, characters)
+
+    #introduce_characters(voice_map)
 
     # Add narrator
     voice_map['Narrator'] = voices[-1][1]

@@ -5,7 +5,7 @@ from pydub.playback import play
 import io
 import gender_guesser.detector as gender
 
-key = ""
+key = open("./elevenlabs_key", "r").read().strip()
 
 def get_voices():
     url = "https://api.elevenlabs.io/v1/voices"
