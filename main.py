@@ -1,6 +1,11 @@
 from transcribe import *
+import math
 from elevenlabs_tts import *
 import re
+
+attribute_encode = {'sex' : {'male':1, 'female':0},
+                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish'3, 'indian':4} # Might extend over time
+            }
 
 def parse(PATH):
     characters = []
@@ -27,9 +32,29 @@ def parse(PATH):
 
     return characters, transcription_text
 
+# Used as similarity measure for character attributes vs voice attributes
+def cosine_similarity(character_att, voice_att): 
+    transformed_accent = int(character_att['accent'] == voice_att['accent'])
+    character_att['accent'] = transformed_accent
+    voice_att['accent'] = transformed_accent
+
+    common_keys = set(character_att.keys()).intersection(set(voice_att.keys()))
+
+    dot_product = sum([character_att[key] * voice_att[key] for key in common_keys])
+
+    mag1 = math.sqrt(sum([val**2 for val in character_att.values()]))
+    mag2 = math.sqrt(sum([val**2 for val in voice_att.values()]))
+
+    cosine_sim = dot_product / (mag1 * mag2)
+
+    return cosine_sim
+
+def best_match(character, voices):
+    pass
+
 # voices -> (Name, voice_id, sex)
 # characters -> (Name, sex)
-def assign_voices(voices, characters):
+def assign_voices(voices, characters): # Will extend to assign voices based on multiple attributes like sex, accent, eccentricity, etc.
     voice_map = {}
     used_voice_ids = set()
     for character in characters:
@@ -80,3 +105,12 @@ if __name__ == '__main__':
 
     # Play generated audiobook
     read_transcription(voice_map, transcription)
+
+    '''
+    # Example usage of similary
+    character_att = {'sex':1, 'accent':1, 'eccentricity': 0.9}
+    voice_att = {'sex':1, 'accent':1, 'eccentricity': 0.9}
+
+    similarity = cosine_similarity(character_att, voice_att)
+    print(similarity)
+    '''

@@ -1,4 +1,4 @@
-./__pycache__
+__pycache__/
 openai_key
 elevenlabs_key
 ./.ipynb_checkpoints
