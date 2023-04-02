@@ -4,7 +4,7 @@ from elevenlabs_tts import *
 import re
 
 attribute_encode = {'sex' : {'male':1, 'female':0},
-                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish'3, 'indian':4} # Might extend over time
+                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish':3, 'indian':4} # Might extend over time
             }
 
 def parse(PATH):

@@ -39,7 +39,7 @@ def text_to_speech(voice_id, text):
     return response.content
 
 def play_from_binary(audio_binary):
-    print(audio_binary)
+    #print(audio_binary)
     try:
         audio_segment = AudioSegment.from_file(io.BytesIO(audio_binary), format='mp3')
     except:
