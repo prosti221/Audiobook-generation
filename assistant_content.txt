@@ -1,6 +1,6 @@
 %%% Characters %%%
-[Ava]: female, american
-[Max]: male, british
+[Ava]: female, american, young
+[Max]: male, british, old
 %%% Output %%%
 [Narrator]: Ava and Max had been best friends since childhood. They did everything together, until Ava fell in love with Max. 
 [Ava]: Max, I have something to tell you. I'm in love with you. 

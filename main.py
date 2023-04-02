@@ -3,12 +3,20 @@ import math
 from elevenlabs_tts import *
 import re
 
-attribute_encode = {'sex' : {'male':1, 'female':0},
-                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish':3, 'indian':4} # Might extend over time
+# The chosen attributes for voices and characters
+attribute_decode = {'sex' : {1:'male', 0:'female'},
+                    'age' : {1:'young', 0:'old'},
+                    'accent' : {0:'british', 1:'american', 2:'irish', 3:'scottish', 4:'indian'} 
             }
 
+attribute_encode = {'sex' : {'male':1, 'female':0},
+                    'age' : {'young':1, 'old':0},
+                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish':3, 'indian':4}
+            }
+
+# Extracting characters and the story from the GPT4 transcribed text.
 def parse(PATH):
-    characters = []
+    characters = {} 
     transcription_text = ""
     with open(PATH, 'r') as f:
         lines = f.readlines()
@@ -19,10 +27,13 @@ def parse(PATH):
                     character_line = lines[j].strip()
                     if not character_line or "%%%" in character_line:
                         break
-                    match = re.match(r"\[(.+?)\]:\s*(male|female)", character_line)
+                    match = re.match(r"\[(.+?)\]:\s*(male|female),\s*(\w+),\s*(\w+)", character_line)
                     if match:
-                        name, sex = match.groups()
-                        characters.append((name, sex))
+                        name, sex, age, accent = match.groups()
+                        characters[name] = {'sex' : attribute_encode['sex'][sex],
+                                            'age' : attribute_encode['age'][age],
+                                            'accent' : attribute_encode['accent'][accent]
+                                        }
             elif "%%% Output %%%" in line:
                 for j in range(i+1, len(lines)):
                     output_line = lines[j]
@@ -32,8 +43,8 @@ def parse(PATH):
 
     return characters, transcription_text
 
-# Used as similarity measure for character attributes vs voice attributes
-def cosine_similarity(character_att, voice_att): 
+# A similarity measure between the character attributes and the voice attributes
+def cosine_similarity(character_att, voice_att):
     transformed_accent = int(character_att['accent'] == voice_att['accent'])
     character_att['accent'] = transformed_accent
     voice_att['accent'] = transformed_accent
@@ -49,38 +60,34 @@ def cosine_similarity(character_att, voice_att):
 
     return cosine_sim
 
+# Computes the similarity between a character and all voices, returns the voice with highest similarity score
 def best_match(character, voices):
-    pass
+    scores = [(voice_id, cosine_similarity(character, attributes)) for voice_id, attributes in voices.items()]
+    scores.sort(key=lambda x: x[1], reverse=True)
+    return scores[0]
 
-# voices -> (Name, voice_id, sex)
-# characters -> (Name, sex)
-def assign_voices(voices, characters): # Will extend to assign voices based on multiple attributes like sex, accent, eccentricity, etc.
-    voice_map = {}
-    used_voice_ids = set()
-    for character in characters:
-        name, sex = character
-        for voice in voices:
-            voice_name, voice_id, voice_sex = voice
-            if voice_id not in used_voice_ids and sex == voice_sex:
-                voice_map[name] = voice_id
-                used_voice_ids.add(voice_id)
-                break
-    return voice_map # {Name: voice_id}
+# Assigns a voice to each character based on the attributes, returns a voice map {character_name : voice_id}
+def assign_voices(voices, characters): 
+    voice_map = {} 
+    for name, attributes in characters.items():
+        match = best_match(attributes, voices)
+        voice_map[name] = match[0]
+    return voice_map
 
 def introduce_characters(voice_map):
     for name, voice_id in voice_map.items():
         play_from_binary(text_to_speech(voice_id, f'Greetings listener! My name is {name}.'))
 
+# This plays the transcribed text given the assigned voices in voice_map
 def read_transcription(voice_map, transcription):
-    #pattern = r'\[([\w\s]+)\]:\s*([\w\s,.!?\']+)'
     pattern = r'\[([\w\s]+)\]:\s*([^\[\]]+)'
-
     for match in re.findall(pattern, transcription):
         character, text = match
         text = text.replace("\n", "")
         print(f"{character}: {text}")
         play_from_binary(text_to_speech(voice_map[character], text))
 
+# Transcribes some text using GPT4 into a manuscript like format and writes it to file
 def transcribe(PATH):
     inp = open('input.txt', 'r').read()
     transcription = transcribe_text(inp)
@@ -100,17 +107,8 @@ if __name__ == '__main__':
     #introduce_characters(voice_map)
 
     # Add narrator
-    voice_map['Narrator'] = voices[-1][1]
-    voices = get_voices()
+    voice_map['Narrator'] = 'xxpAZbhY90eMtbLm0aVL' # Add your own narrator by giving it the voice_id
 
     # Play generated audiobook
     read_transcription(voice_map, transcription)
 
-    '''
-    # Example usage of similary
-    character_att = {'sex':1, 'accent':1, 'eccentricity': 0.9}
-    voice_att = {'sex':1, 'accent':1, 'eccentricity': 0.9}
-
-    similarity = cosine_similarity(character_att, voice_att)
-    print(similarity)
-    '''

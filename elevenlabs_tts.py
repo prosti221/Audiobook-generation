@@ -7,6 +7,14 @@ import gender_guesser.detector as gender
 
 key = open("./elevenlabs_key", "r").read().strip()
 
+attribute_encode = {'sex' : {'male':1, 'female':0},
+                    'age' : {'young':1, 'old':0},
+                    'accent' : {'british':0, 'american':1, 'irish':2, 'scottish':3, 'indian':4} # Might extend over time
+            }
+
+generate_atts = lambda sex, age, accent: {'sex': attribute_encode['sex'][sex], 'age':attribute_encode['age'][age], 'accent':attribute_encode['accent'][accent]}
+
+
 def get_voices():
     url = "https://api.elevenlabs.io/v1/voices"
     headers = {
@@ -14,10 +22,20 @@ def get_voices():
     "xi-api-key": key
     }
     response = requests.get(url, headers=headers)
-
+    #[print(voice['labels']) for voice in response.json()['voices']]
     d = gender.Detector()
-    
-    return [(voice['name'], voice['voice_id'], d.get_gender(voice['name'])) for voice in response.json()['voices']]
+    voices = {}
+    for voice in response.json()['voices']:
+        # If we have no labels, guess sex from name and give default age and accent
+        if len(voice['labels']) == 0: 
+            pred_sex = d.get_gender(voice['name'])
+            pred_sex = 'male' if pred_sex == 'male' or pred_sex == 'mostly_male' or pred_sex == 'unknown' else 'female'
+            voices[voice['voice_id']] = generate_atts(pred_sex, 'young', 'american')
+        else:
+            labels = voice['labels']
+            voices[voice['voice_id']] = generate_atts(labels['gender'], labels['age'], labels['accent'])
+
+    return voices
 
 def text_to_speech(voice_id, text):
     url = f'https://api.elevenlabs.io/v1/text-to-speech/{voice_id}'
@@ -34,7 +52,6 @@ def text_to_speech(voice_id, text):
         }
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
-    #print(response.json())
 
     return response.content
 
