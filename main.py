@@ -1,3 +1,4 @@
+import argparse
 from transcribe import *
 import math
 from elevenlabs_tts import *
@@ -113,17 +114,26 @@ def transcribe(PATH):
         file.write(transcription)
 
 if __name__ == '__main__':
-    transcribe('input.txt')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--transcribe", help="Generate manuscript transcription from input using GPT4", action='store_true')
+    parser.add_argument("--play", help="Play the audio for the transcribed input with TTS", action='store_true')
+    parser.add_argument("--introduce", help="Introduce all the characters with TTS", action='store_true')
+    args = parser.parse_args()
+
+    if args.transcribe:
+        transcribe('input.txt')
     characters, transcription = parse('transcription')
 
     # Assign the voices based on attributes 
     voices = get_voices()
     voice_map = assign_voices(voices, characters)
 
-    #introduce_characters(voice_map)
+    if args.introduce:
+        introduce_characters(voice_map)
 
     # Add narrator
     voice_map['Narrator'] = get_voice_id('Narrator') # Add your own narrator by giving it the voice_id
 
     # Play generated audiobook
-    read_transcription(voice_map, transcription)
+    if args.play:
+        read_transcription(voice_map, transcription)
