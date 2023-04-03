@@ -6,7 +6,7 @@ The input text can be placed in the `input.txt` file. GPT4 is then used to provi
 
 Put the text you want to transcribe in `input.txt`, and run 
 ```bash
-python main.py --transcribe
+python main.py 
 ```
 You need to have both an OpenAI API key and an ElevenLabs API key.
 You will also need to create voices with labels used in the code such that they can be matched with the characters.
@@ -21,5 +21,6 @@ I'm experimenting with using Tortoise TTS as a free alternative to ElevenLabs th
 ## TODO
 
 - Get `voice_id` by name.
+- Add command line argument --transcribe if we want to generate transcription, not necessary if transcription is already generated.
 - Truncate the transcription for faster TTS generations.
 - Run TTS API calls in the background while previous TTS is playing.
