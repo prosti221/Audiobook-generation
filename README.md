@@ -20,7 +20,6 @@ I'm experimenting with using Tortoise TTS as a free alternative to ElevenLabs th
 
 ## TODO
 
-- Get `voice_id` by name.
 - Add command line argument `--transcribe` if we want to generate transcription, not necessary if transcription is already generated.
 - Truncate the transcription for faster TTS generations.
 - Run TTS API calls in the background while previous TTS is playing.
