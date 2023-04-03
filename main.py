@@ -123,8 +123,7 @@ if __name__ == '__main__':
     #introduce_characters(voice_map)
 
     # Add narrator
-    voice_map['Narrator'] = 'VzHwQ3PRLGGR95Kdp2Vk' # Add your own narrator by giving it the voice_id
+    voice_map['Narrator'] = get_voice_id('Narrator') # Add your own narrator by giving it the voice_id
 
     # Play generated audiobook
     read_transcription(voice_map, transcription)
-

@@ -64,3 +64,17 @@ def play_from_binary(audio_binary):
         audio_segment = AudioSegment.from_file(io.BytesIO(audio_binary), format='mp4')
 
     play(audio_segment)
+
+def get_voice_id(name):
+    url = "https://api.elevenlabs.io/v1/voices"
+    headers = {
+    "accept": "application/json",
+    "xi-api-key": key
+    }
+    response = requests.get(url, headers=headers)
+    #[print(voice['labels']) for voice in response.json()['voices']]
+    for voice in response.json()['voices']:
+        if voice['name'] == name:
+            return voice['voice_id']
+    raise Exception(f"No voice with the name {name}.")
+
