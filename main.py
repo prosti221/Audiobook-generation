@@ -113,7 +113,7 @@ def transcribe(PATH):
         file.write(transcription)
 
 if __name__ == '__main__':
-    transcribe('input.txt')
+    #transcribe('input.txt')
     characters, transcription = parse('transcription')
 
     # Assign the voices based on attributes 
