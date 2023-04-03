@@ -43,33 +43,56 @@ def parse(PATH):
 
     return characters, transcription_text
 
-# A similarity measure between the character attributes and the voice attributes
+# Might use this similarity measure if I start introducing non-categorical attributes
 def cosine_similarity(character_att, voice_att):
-    transformed_accent = int(character_att['accent'] == voice_att['accent'])
-    character_att['accent'] = transformed_accent
-    voice_att['accent'] = transformed_accent
+    # Define weights for each attribute
+    weight_dict = {'sex': 1, 'age': 1, 'accent': 1}
 
     common_keys = set(character_att.keys()).intersection(set(voice_att.keys()))
 
-    dot_product = sum([character_att[key] * voice_att[key] for key in common_keys])
+    dot_product = sum([character_att[key] * voice_att[key] * weight_dict.get(key, 1) for key in common_keys])
 
-    mag1 = math.sqrt(sum([val**2 for val in character_att.values()]))
-    mag2 = math.sqrt(sum([val**2 for val in voice_att.values()]))
+    mag1 = math.sqrt(sum([val**2 * (weight_dict.get(key, 1)**2) for key, val in character_att.items()]))
+    mag2 = math.sqrt(sum([val**2 * (weight_dict.get(key, 1)**2) for key, val in voice_att.items()]))
+
+    if mag1 == 0 or mag2 == 0:
+        return 0
 
     cosine_sim = dot_product / (mag1 * mag2)
 
     return cosine_sim
 
+# A similarity measure between the character attributes and the voice attributes this is used while we only have categorical attributes
+def jaccard_similarity(character_att, voice_att):
+    # Define weights for each attribute
+    weight_dict = {'sex': 2, 'age': 1, 'accent': 1.5}
+
+    character_set = set(character_att.items())
+    voice_set = set(voice_att.items())
+
+    intersection = character_set.intersection(voice_set)
+    union = character_set.union(voice_set)
+
+    weighted_intersection = sum(weight_dict[key] for key, _ in intersection)
+
+    weighted_union = sum(weight_dict[key] for key, _ in union)
+
+    weighted_jaccard_sim = weighted_intersection / weighted_union
+
+    return weighted_jaccard_sim
+
 # Computes the similarity between a character and all voices, returns the voice with highest similarity score
 def best_match(character, voices):
-    scores = [(voice_id, cosine_similarity(character, attributes)) for voice_id, attributes in voices.items()]
+    scores = [(voice_id, jaccard_similarity(character, attributes)) for voice_id, attributes in voices.items()]
     scores.sort(key=lambda x: x[1], reverse=True)
+    print(f'Character scores: {scores}')
     return scores[0]
 
 # Assigns a voice to each character based on the attributes, returns a voice map {character_name : voice_id}
 def assign_voices(voices, characters): 
     voice_map = {} 
     for name, attributes in characters.items():
+        print(f'Character name: {name}')
         match = best_match(attributes, voices)
         voice_map[name] = match[0]
     return voice_map
@@ -102,12 +125,13 @@ if __name__ == '__main__':
 
     # Assign the voices based on attributes 
     voices = get_voices()
+    print(f'VOICES: {voices}')
     voice_map = assign_voices(voices, characters)
 
     #introduce_characters(voice_map)
 
     # Add narrator
-    voice_map['Narrator'] = 'xxpAZbhY90eMtbLm0aVL' # Add your own narrator by giving it the voice_id
+    voice_map['Narrator'] = 'VzHwQ3PRLGGR95Kdp2Vk' # Add your own narrator by giving it the voice_id
 
     # Play generated audiobook
     read_transcription(voice_map, transcription)
