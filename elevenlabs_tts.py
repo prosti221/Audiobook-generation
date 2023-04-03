@@ -4,8 +4,9 @@ from pydub import AudioSegment
 from pydub.playback import play
 import io
 import gender_guesser.detector as gender
+import os
 
-key = open("./elevenlabs_key", "r").read().strip()
+key = os.environ.get('ELEVENLABS_API_KEY')
 
 attribute_encode = {'sex' : {'male':1, 'female':0},
                     'age' : {'young':1, 'old':0},

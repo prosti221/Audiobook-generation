@@ -1,5 +1,7 @@
 import openai
-openai.api_key = open('openai_key', 'r').read().strip()
+import os
+
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 system_content = open('system_content.txt', 'r').read()
 assistant_content = open('assistant_content.txt', 'r').read()
