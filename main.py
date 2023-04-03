@@ -30,10 +30,7 @@ def parse(PATH):
                     match = re.match(r"\[(.+?)\]:\s*(male|female),\s*(\w+),\s*(\w+)", character_line)
                     if match:
                         name, sex, age, accent = match.groups()
-                        characters[name] = {'sex' : attribute_encode['sex'][sex],
-                                            'age' : attribute_encode['age'][age],
-                                            'accent' : attribute_encode['accent'][accent]
-                                        }
+                        characters[name] = {'sex' : attribute_encode['sex'][sex], 'age' : attribute_encode['age'][age], 'accent' : attribute_encode['accent'][accent]}
             elif "%%% Output %%%" in line:
                 for j in range(i+1, len(lines)):
                     output_line = lines[j]
@@ -62,7 +59,7 @@ def cosine_similarity(character_att, voice_att):
 
     return cosine_sim
 
-# A similarity measure between the character attributes and the voice attributes this is used while we only have categorical attributes
+# A similarity measure between the character attributes and the voice attributes, this is used while we only have categorical attributes.
 def jaccard_similarity(character_att, voice_att):
     # Define weights for each attribute
     weight_dict = {'sex': 2, 'age': 1, 'accent': 1.5}
@@ -74,9 +71,7 @@ def jaccard_similarity(character_att, voice_att):
     union = character_set.union(voice_set)
 
     weighted_intersection = sum(weight_dict[key] for key, _ in intersection)
-
     weighted_union = sum(weight_dict[key] for key, _ in union)
-
     weighted_jaccard_sim = weighted_intersection / weighted_union
 
     return weighted_jaccard_sim
@@ -85,14 +80,12 @@ def jaccard_similarity(character_att, voice_att):
 def best_match(character, voices):
     scores = [(voice_id, jaccard_similarity(character, attributes)) for voice_id, attributes in voices.items()]
     scores.sort(key=lambda x: x[1], reverse=True)
-    print(f'Character scores: {scores}')
     return scores[0]
 
 # Assigns a voice to each character based on the attributes, returns a voice map {character_name : voice_id}
 def assign_voices(voices, characters): 
     voice_map = {} 
     for name, attributes in characters.items():
-        print(f'Character name: {name}')
         match = best_match(attributes, voices)
         voice_map[name] = match[0]
     return voice_map
@@ -120,12 +113,11 @@ def transcribe(PATH):
         file.write(transcription)
 
 if __name__ == '__main__':
-    transcribe('input.txt')
+    #transcribe('input.txt')
     characters, transcription = parse('transcription')
 
     # Assign the voices based on attributes 
     voices = get_voices()
-    print(f'VOICES: {voices}')
     voice_map = assign_voices(voices, characters)
 
     #introduce_characters(voice_map)
