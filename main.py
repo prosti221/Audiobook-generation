@@ -109,7 +109,6 @@ def transcribe(PATH):
     inp = open('input.txt', 'r').read()
     transcription = transcribe_text(inp)
 
-    print(transcription)
     with open('transcription', 'w') as file:
         file.write(transcription)
 
